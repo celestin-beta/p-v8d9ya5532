@@ -280,7 +280,7 @@ table.pj th{background:#f6f6f6}
 body.demo .legend,body.demo .avtag{display:none!important}
 body.demo .aval{outline:0!important}
 .pbtn.on{background:var(--proto-accent);color:#1a1a1a;border-color:var(--proto-accent);font-weight:700}
-</style></head><body>
+.scrref{margin:40px 0 0;padding-top:8px;border-top:1px solid #e5e5e5;font:12px/1.4 ui-monospace,Menlo,monospace;color:#666}</style></head><body>
 
 <div id="app"></div>
 
@@ -424,6 +424,19 @@ function piecesFor(a){
   return L;
 }
 
+function scrRef(){
+ if(S.view==="greffe"){const g=S.g;
+  if(g.page==="list"){const t=TABS.find(x=>x[0]===g.tab);return "G1 · Liste des demandes · "+(t?t[1]:"")}
+  const n={detail:2,request:3,confirm:4}[g.page]||9;
+  const l={detail:"Fiche de la demande",request:"Demande de pièces",confirm:"Confirmation de la demande de pièces"}[g.page]||g.page;
+  const sub=g.page==="detail"?" · "+({resume:"Résumé",pieces:"Pièces jointes",hist:"Historique"}[g.dtab]||""):"";
+  return "G"+n+" · "+l+sub+(g.modal==="print"?" · Impression":"")}
+ const keys=Object.keys(SC),i=keys.indexOf(S.scr),s=SC[S.scr]||{};
+ const NOMS={portail:"Accueil du portail",accueil:"Accueil de l'aide juridictionnelle",aide:"Aide et ressources",avant:"Avant de commencer",fcsim:"FranceConnect",espace:"Mon espace",suivi:"Suivi d'une demande",accuse:"Accusé de réception",mails:"Courriels reçus",simu:"Simulateur",envoyee:"Demande envoyée","x-ce":"Sortie vers le Conseil d'État","x-papier-requete":"Sortie papier : requête ou recours","x-papier-res":"Sortie papier : outre-mer","x-papier-mandat":"Sortie papier : mandat","x-papier-fc":"Sortie papier : sans FranceConnect","x-aide":"Se faire aider pour choisir","x-assur-totale":"Sortie : l'assurance couvre tout","x-assur-contact":"Sortie : contacter d'abord l'assurance","x-org-lucratif":"Sortie : organisme à but lucratif"};
+ let t="";try{t=typeof s.title==="function"?s.title():(s.title||"")}catch(x){}
+ t=NOMS[S.scr]&&S.scr.indexOf("x-")===0?NOMS[S.scr]:(String(t).replace(/<[^>]+>/g,"").trim()||NOMS[S.scr])||(S.scr.indexOf("x-")===0?"Sortie du parcours":S.scr);
+ if(t.length>70)t=t.slice(0,67)+"…";
+ return "J"+String(i+1).padStart(2,"0")+" · "+t}
 /* ---------- Écrans du portail public ---------- */
 function normPV(v){const t=String(v||"").toUpperCase().replace(/[\s.\-\/]/g,"").replace(/^N[°O]?/,"");return /^[A-Z]?\d{7}$/.test(t)?t:null}
 function opts(key,list,multi){const cur=S.a[key];return `<div class="opts" role="radiogroup">${list.map(o=>{const on=cur===o.v;return `<button type="button" class="opt ${on?"on":""}" role="radio" aria-checked="${on}" data-act="pick" data-k="${key}" data-v="${e(o.v)}"><span class="radio"></span><span><b>${o.l}</b>${o.d?`<small>${o.d}</small>`:""}</span></button>${on&&o.after?`<div class="notice">${o.after}</div>`:""}`}).join("")}</div>`}
@@ -882,9 +895,9 @@ function publicView(){const s=SC[S.scr]||SC.accueil;const tt=typeof s.title==="f
   const aside=s.aside?`<aside class="aside">${s.aside()}</aside>`:"";
   return `${S.ui.bandOff?"":`<div class="info-band pad" role="note"><div class="in"><div><p><b>Nouveau : faites vos démarches en ligne</b></p><p>Vous pouvez maintenant demander un certificat de non-pourvoi et l'aide juridictionnelle directement en ligne, sur ce portail.</p></div><button class="x" data-act="bandoff" aria-label="Masquer le message">×</button></div></div>`}<header class="site"><div class="in pad"><div class="brand"><span class="flag"></span><div><b>Vos démarches à la Cour de cassation</b><small>Demandes et suivi d'affaire</small></div></div><div class="user">${S.fc?`${e(S.fc.prenom+" "+S.fc.nom)} · Se déconnecter`:"Se connecter"}</div></div>
   <nav class="sub pad"><a class="${S.scr==="portail"?"on":""}" data-act="portail">Accueil</a><a data-act="toast" data-t="La démarche CNP n'est pas dans cette préversion">Certificat de non-pourvoi</a><a class="${["portail","aide","espace","suivi","accuse","mails"].includes(S.scr)?"":"on"}" data-act="home">Aide juridictionnelle</a><a class="${S.scr==="aide"?"on":""}" data-act="aide" data-tab="faq">Aide et ressources</a><a class="${["espace","suivi","accuse"].includes(S.scr)?"on":""}" data-act="myspace">Mon espace</a><a class="${S.scr==="mails"?"on":""}" data-act="go" data-to="mails">Courriels reçus (${S.mails.filter(m=>m.to==="me").length})</a></nav></header>
-  <main class="pad">${aside?`<div class="cols"><div>${body}</div>${aside}</div>`:body}
+  <main class="pad">${aside?`<div class="cols"><div>${body}</div>${aside}</div>`:body}<p class="scrref">Repère pour vos retours : ${scrRef()}</p>
   ${["portail","aide"].includes(S.scr)?"":`<div class="help"><div><b>Besoin d'aide ?</b><br>Par téléphone, du lundi au vendredi, de 8 h 30 à 17 h 30. Appel non surtaxé.<br><b>Appeler le 01 44 32 95 95</b></div><div><b>En ligne</b><br>Les réponses aux questions les plus fréquentes.<br><a data-act="aide" data-tab="faq" href="#">Consulter l'aide et les ressources</a></div><div><b>Dans un lieu d'accueil</b><br>Les agents vous expliquent la démarche. Ils n'ont pas le droit de remplir la demande à votre place.<br>${lieuLink()}</div></div>`}</main><footer class="sitefoot"><div class="in pad"><div class="fbrand"><span class="flag"></span><b>Cour de cassation</b></div><p class="small">Portail des démarches de la Cour de cassation. Les informations recueillies sont traitées par le bureau d'aide juridictionnelle.</p><ul class="flinks"><li><a href="#" data-act="toast" data-t="Page Accessibilité (hors préversion)">Accessibilité : non conforme</a></li><li><a href="#" data-act="toast" data-t="Mentions légales (hors préversion)">Mentions légales</a></li><li><a href="#" data-act="toast" data-t="Données personnelles (hors préversion)">Données personnelles</a></li><li><a href="#" data-act="toast" data-t="Gestion des cookies (hors préversion)">Gestion des cookies</a></li></ul></div></footer>`}
-function greffeView(){return `<header class="site"><div class="in pad"><div class="brand"><span class="flag"></span><div><b>Portail greffe · Cour de cassation</b><small>Bureau d'aide juridictionnelle</small></div></div><div class="user">${AGENT} (agent fictif)</div></div></header><main class="pad">${greffe()}</main>`}
+function greffeView(){return `<header class="site"><div class="in pad"><div class="brand"><span class="flag"></span><div><b>Portail greffe · Cour de cassation</b><small>Bureau d'aide juridictionnelle</small></div></div><div class="user">${AGENT} (agent fictif)</div></div></header><main class="pad">${greffe()}<p class="scrref">Repère pour vos retours : ${scrRef()}</p></main>`}
 function render(){if(S.view==="decoupage")S.view="public";if(!S.sim)S.sim={open:false,done:false,a:{}};tick();
   const g=document.getElementById("app");
   g.innerHTML=`<div class="proto"><div class="in pad"><span class="lab">Préversion · données fictives</span><div class="seg" role="group" aria-label="Portail"><button class="${S.view==="public"?"on":""}" data-act="view" data-v="public">Justiciable</button><button class="${S.view==="greffe"?"on":""}" data-act="view" data-v="greffe">Greffe</button></div><span class="date">Aujourd'hui : ${fr(today())}</span><button class="pbtn" data-act="time" data-n="8">+8 jours</button><button class="pbtn" data-act="time" data-n="31">+1 mois</button><button class="pbtn ${(document.body&&document.body.classList&&document.body.classList.contains("demo"))?"on":""}" data-act="noop" style="display:none">Mode démo</button><span class="spacer"></span>${S.view==="public"?`<label class="small" for="jump">Aller à</label><select id="jump" data-act-change="jump" style="max-width:220px;padding:3px 6px;border-radius:4px"><option value="">écran…</option>${Object.keys(SC).filter(k=>!["suivi","accuse","envoyee","fcsim"].includes(k)).map(k=>`<option>${k}</option>`).join("")}</select>`:""}<button class="pbtn" data-act="reset">Réinitialiser</button></div></div>
